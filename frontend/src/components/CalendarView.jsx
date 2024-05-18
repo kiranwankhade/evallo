@@ -49,7 +49,7 @@ const CalendarView = () => {
       if (user && user._id) {
         try {
           const response = await axios.get(
-            "https://frightened-bedclothes-fox.cyclic.app/auth/events",
+            "https://wicked-goat-gaiters.cyclic.app/auth/events",
             {
               params: { user: JSON.stringify(user) },
               headers: {
@@ -157,11 +157,7 @@ const CalendarView = () => {
     );
   };
 
-  // const eventRender = ( {event} ) => (
-
-  // );
-  // When a date grid is clicked, this function will invoke
-
+ 
   const handleDateClick = (info) => {
     alert("Date clicked: " + info.dateStr);
   };
@@ -210,7 +206,7 @@ const CalendarView = () => {
     if (createEvent === false) {
       try {
         const response = await axios.patch(
-          `https://frightened-bedclothes-fox.cyclic.app/auth/events/${selectedEventId}`,
+          `https://wicked-goat-gaiters.cyclic.app/auth/events/${selectedEventId}`,
           {
             user,
             eventObject: eventObject,
@@ -238,7 +234,7 @@ const CalendarView = () => {
       }
     } else {
       try {
-        const response = await fetch("https://frightened-bedclothes-fox.cyclic.app/auth/events", {
+        const response = await fetch("https://wicked-goat-gaiters.cyclic.app/auth/events", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -327,7 +323,7 @@ const CalendarView = () => {
   const handleDeleteEvent = async () => {
     try {
       console.log("selectedEventId:", selectedEventId);
-      await fetch(`https://frightened-bedclothes-fox.cyclic.app/auth/events/${selectedEventId}`, {
+      await fetch(`https://wicked-goat-gaiters.cyclic.app/auth/events/${selectedEventId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -395,6 +391,10 @@ const CalendarView = () => {
         eventClick={handleEventClick}
         // editable={true}
         eventContent={eventRender}
+        // eventMouseEnter={handleEventMouseEnter}
+        // eventMouseLeave={handleEventMouseLeave}
+        // Fix for modal not showing in fullscreen:
+        //  height="calc(100vh - 10px)" // Adjust height as needed (subtract header/footer height)
       />
       {tooltipContent && (
         <div
