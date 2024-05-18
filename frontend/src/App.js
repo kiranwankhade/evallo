@@ -1,25 +1,56 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import { Navigate, Route, Router, Routes } from 'react-router-dom';
+import CalendarView from './components/CalendarView';
+import EventForm from './components/EventForm';
+import Login from './components/Login';
+import { Box } from '@chakra-ui/react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
-function App() {
+const App = () => {
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.user);
+
+  console.log('App_user:', user)
+  const events = useSelector(state => state.events);
+  const isAuthenticated = !!user.email;
+
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        if (isAuthenticated) {
+          const response = await axios.get('http://localhost:8000/auth/events', {
+            params: { user: JSON.stringify(user) },
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+  
+          console.log('response:', response.data);
+          dispatch({ type: 'SET_EVENTS', payload: response.data });
+        }
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
+  
+    fetchEvents();
+  }, [user, dispatch]);
+  
+  console.log("events",events)
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Box>
+        
+     <Routes>
+        <Route path="/" element={user.email=='' ? <Login/> : <CalendarView path="/calender" /> } />
+        <Route path="/calender" element={<CalendarView path="/calender" />} />
+        <Route path="/new-event" element={<EventForm />} />
+      </Routes>
+  </Box>
   );
-}
+};
 
 export default App;
