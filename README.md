@@ -80,3 +80,43 @@ This project is a Basic Tutor Calendar System that allows users to manage their 
     `` bash
       npm run server
    ``
+   
+### Frontend Setup
+
+1. Navigate to the frontend directory:
+  ``
+  cd frontend
+  Install dependencies:
+  ``
+
+2. Navigate to the backend directory:
+   `` bash
+      cd backend
+   ``
+   
+3. Install dependencies::
+   `` bash
+      npm install
+   ``
+
+4. Start the backend server:
+    `` bash
+      npm start
+   ``
+
+### API Endpoints
+## Event Endpoints
+1. Create Event: POST /auth/events
+2. Get Events: GET /auth/events
+3. Update Event: PUT /auth/events/:id
+4. Delete Event: DELETE /auth/events/:id
+
+## Google Calendar Integration Endpoints
+1. Authorize: GET /auth/google
+2. Callback: GET /auth/google/callback
+
+### Usage
+- Navigate to the frontend application in your browser at http://localhost:3000.
+- Sign in with your Google account to authorize the application.
+- Use the interactive calendar to view, create, update, and delete events.
+- Events will be synced with your Google Calendar.
