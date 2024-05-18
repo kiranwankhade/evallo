@@ -49,7 +49,7 @@ const CalendarView = () => {
       if (user && user._id) {
         try {
           const response = await axios.get(
-            "http://localhost:8000/auth/events",
+            "https://frightened-bedclothes-fox.cyclic.app/auth/events",
             {
               params: { user: JSON.stringify(user) },
               headers: {
@@ -210,7 +210,7 @@ const CalendarView = () => {
     if (createEvent === false) {
       try {
         const response = await axios.patch(
-          `http://localhost:8000/auth/events/${selectedEventId}`,
+          `https://frightened-bedclothes-fox.cyclic.app/auth/events/${selectedEventId}`,
           {
             user,
             eventObject: eventObject,
@@ -238,7 +238,7 @@ const CalendarView = () => {
       }
     } else {
       try {
-        const response = await fetch("http://localhost:8000/auth/events", {
+        const response = await fetch("https://frightened-bedclothes-fox.cyclic.app/auth/events", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -289,14 +289,12 @@ const CalendarView = () => {
 
   // Function to handle editing an event
   const handleEventClick = (info) => {
-    console.log("info:", info);
+    setIsModalOpen(true);
     const eventId = info.event.extendedProps._id;
-    console.log("eventId:", typeof eventId);
     const eventOne = events.find((event) => event.id === eventId);
-    console.log("event:", eventOne);
     setSelectedEventId(eventId);
     setCreateEventId(false);
-
+    
     if (eventOne) {
       // Extract date and time for start and end
       const { date: startDate, time: startTime } = splitDateTime(
@@ -322,14 +320,14 @@ const CalendarView = () => {
         sessionNotes: eventOne.sessionNotes,
       });
 
-      setIsModalOpen(true);
+      
     }
   };
 
   const handleDeleteEvent = async () => {
     try {
       console.log("selectedEventId:", selectedEventId);
-      await fetch(`http://localhost:8000/auth/events/${selectedEventId}`, {
+      await fetch(`https://frightened-bedclothes-fox.cyclic.app/auth/events/${selectedEventId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -395,12 +393,8 @@ const CalendarView = () => {
         events={simplifiedEvents}
         dateClick={handleDateClick}
         eventClick={handleEventClick}
-        editable={true}
+        // editable={true}
         eventContent={eventRender}
-        eventMouseEnter={handleEventMouseEnter}
-        eventMouseLeave={handleEventMouseLeave}
-        // Fix for modal not showing in fullscreen:
-        //  height="calc(100vh - 10px)" // Adjust height as needed (subtract header/footer height)
       />
       {tooltipContent && (
         <div

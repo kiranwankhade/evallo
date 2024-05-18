@@ -21,7 +21,7 @@ const App = () => {
     const fetchEvents = async () => {
       try {
         if (isAuthenticated) {
-          const response = await axios.get('http://localhost:8000/auth/events', {
+          const response = await axios.get('https://frightened-bedclothes-fox.cyclic.app/auth/events', {
             params: { user: JSON.stringify(user) },
             headers: {
               'Content-Type': 'application/json',
