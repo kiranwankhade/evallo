@@ -1,5 +1,22 @@
 const mongoose = require('mongoose');
 
+const attendeeSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true
+  },
+  responseStatus: {
+    type: String,
+    required: true,
+    default: 'accepted' // Default value
+  },
+  self: {
+    type: Boolean,
+    required: true,
+    default: true // Default value
+  }
+});
+
 const eventSchema = new mongoose.Schema({
   summary: {
     type: String,
@@ -10,7 +27,7 @@ const eventSchema = new mongoose.Schema({
     required: true
   }, 
   attendees: {
-    type: [String], // Array of strings (emails)
+    type: [attendeeSchema], // Array of strings (emails)
     required: true
   },
   date: {

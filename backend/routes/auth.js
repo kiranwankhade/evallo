@@ -13,28 +13,6 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_REDIRECT_URI
 );
 
-// Middleware to verify user authentication and get access token
-const verifyAuthAndGetToken = async (req, res, next) => {
-
-  try {
-    // Check if user is authenticated
-    console.log('req.user :', req.user )
-    if (!req.user || !req.user.accessToken) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    // Get access token from user object or session
-    const accessToken = req.user.accessToken;
-
-    // Set the access token in OAuth2 client
-    oauth2Client.setCredentials({ access_token: accessToken });
-
-    next();
-  } catch (error) {
-    console.error('Error verifying authentication:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-};
 
 // Route to initiate Google OAuth2 flow
 router.get('/google', (req, res) => {
@@ -58,6 +36,7 @@ router.get('/google', (req, res) => {
 router.get('/google/callback', async (req, res) => {
   try {
     const code = req.query.code;
+    console.log('code:', code)
 
     // Exchange authorization code for tokens
     const { tokens } = await oauth2Client.getToken(code);
@@ -100,11 +79,12 @@ router.get('/google/callback', async (req, res) => {
       accessToken: tokens.access_token,
       tokenId: tokens.id_token,
       expiryDate: tokens.expiry_date,
-      scope:tokens.scope
+      scope:tokens.scope,
+      picture:userInfo.picture
     };
 
     const searchParams = new URLSearchParams(userData);
-    const frontendUrl = `http://localhost:3000/calender?${searchParams.toString()}`;
+    const frontendUrl = `https://evallocalender.vercel.app/calender?${searchParams.toString()}`;
 
     // Redirect to the frontend with user data
     res.redirect(frontendUrl);
@@ -115,69 +95,14 @@ router.get('/google/callback', async (req, res) => {
   }
 });
 
-// Routes requiring authentication and access token
-// router.use(verifyAuthAndGetToken);
-// const jwtClient = new google.auth.JWT( 
-//   'kiranwankhade7738@gmail.com', 
-//   null, 
-//   'AIzaSyDh65AymEMmNkE1kqBCzOe0WuTR0djwTIc', 
-//   'https://www.googleapis.com/auth/calendar' 
-// ); 
-
-// const calendar = google.calendar({ 
-//   version: 'v3', 
-//   project: 'calender-tutorial-423515', 
-//   auth: jwtClient 
-// }); 
-// Google Calendar API instance
-
-
-
-// Get all events for a user
-// router.get('/events', async (req, res) => {
-//   const user = JSON.parse(req.query.user);
-//   const access_token = user.accessToken; // Bearer token
-//   console.log('accessToken:', access_token)
-
-//   console.log('Request received with userEmail:', user);
-
-//   try {
-//     // Check if user email is provided
-//     if (!user.email) {
-//       return res.status(400).json({ message: 'User email is required' });
-//     }
-
-//     // Check if access token is available
-//     if (!access_token) {
-//       return res.status(401).json({ message: 'Unauthorized' });
-//     }
-
-//     // Set the access token in OAuth2 client
-//     oauth2Client.setCredentials({ access_token: access_token });
-
-//     // Fetch events from Google Calendar API
-//     const response = await calendar.events.list({
-//       calendarId: user.email,
-//       timeMin: new Date().toISOString(),
-//       maxResults: 10,
-//       singleEvents: true,
-//       orderBy: 'startTime',
-//     });
-
-//     const events = response.data.items;
-//     console.log('events:', events)
-//     res.json(events);
-//   } catch (error) {
-//     console.error('Error fetching events:', error);
-//     res.status(500).json({ message: 'Error fetching events', error: error.message });
-//   }
-// });
 
 const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
 router.get('/events', async (req, res) => {
+  console.log('req.query.user:', req.query.user)
   try {
     const user = JSON.parse(req.query.user);
+    console.log('user:', user)
     const accessToken = user.accessToken;
     const refreshToken = user.refreshToken;
     console.log('accessToken:', accessToken);
