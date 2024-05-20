@@ -3,7 +3,7 @@ import { Box, Button, Center, Heading, Text, VStack } from '@chakra-ui/react';
 
 const Login = () => {
   const handleGoogleLogin = () => {
-    window.location.href = 'https://wicked-goat-gaiters.cyclic.app/auth/google';
+    window.location.href = 'https://evallo-backend.onrender.com/auth/google';
   };
 
   return (

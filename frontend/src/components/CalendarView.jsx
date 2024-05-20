@@ -49,7 +49,7 @@ const CalendarView = () => {
       if (user && user._id) {
         try {
           const response = await axios.get(
-            "https://wicked-goat-gaiters.cyclic.app/auth/events",
+            "https://evallo-backend.onrender.com/auth/events",
             {
               params: { user: JSON.stringify(user) },
               headers: {
@@ -180,6 +180,7 @@ const CalendarView = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+   
     const {
       summary,
       description,
@@ -190,6 +191,8 @@ const CalendarView = () => {
       duration,
       sessionNotes,
     } = formData;
+  
+  
     const eventObject = {
       summary,
       description,
@@ -206,7 +209,7 @@ const CalendarView = () => {
     if (createEvent === false) {
       try {
         const response = await axios.patch(
-          `https://wicked-goat-gaiters.cyclic.app/auth/events/${selectedEventId}`,
+          `https://evallo-backend.onrender.com/auth/events/${selectedEventId}`,
           {
             user,
             eventObject: eventObject,
@@ -234,7 +237,7 @@ const CalendarView = () => {
       }
     } else {
       try {
-        const response = await fetch("https://wicked-goat-gaiters.cyclic.app/auth/events", {
+        const response = await fetch("https://evallo-backend.onrender.com/auth/events", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -323,7 +326,7 @@ const CalendarView = () => {
   const handleDeleteEvent = async () => {
     try {
       console.log("selectedEventId:", selectedEventId);
-      await fetch(`https://wicked-goat-gaiters.cyclic.app/auth/events/${selectedEventId}`, {
+      await fetch(`https://evallo-backend.onrender.com/auth/events/${selectedEventId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
