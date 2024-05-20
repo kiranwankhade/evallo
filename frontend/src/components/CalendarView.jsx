@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "../Redux/User/userActions";
+import { logoutUser, setUser } from "../Redux/User/userActions";
 import { setEvents } from "../Redux/Event/eventActions";
 import axios from "axios";
 import {
@@ -25,6 +25,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import FullCalendar from "@fullcalendar/react"; // must go before plugins
 import dayGridPlugin from "@fullcalendar/daygrid"; // a plugin!
+import Navbar from "./Navbar";
 
 const CalendarView = () => {
   const dispatch = useDispatch();
@@ -32,12 +33,13 @@ const CalendarView = () => {
   const events = useSelector((state) => state.events);
   const user = useSelector((state) => state.user);
   const location = useLocation();
+  const nav = useNavigate();
 
   useEffect(() => {
     // Extract query parameters from the URL
     const searchParams = new URLSearchParams(location.search);
     const userData = Object.fromEntries(searchParams.entries());
-    console.log("userData:", userData);
+   
 
     // Dispatch action to set user data in Redux store
     dispatch(setUser(userData));
@@ -79,31 +81,26 @@ const CalendarView = () => {
 
     fetchEvents();
   }, [user, dispatch]);
-
+  console.log("userData:", user);
   const simplifiedEvents = events?.map((event) => {
     const startDateTime = new Date(event.start.dateTime);
     const endDateTime = new Date(event.end.dateTime);
-
-    // Calculate duration in minutes
+  
     const duration = (endDateTime - startDateTime) / (1000 * 60); // duration in minutes
-
-    // Example to extract session details from description (customize as needed)
-    const session = event.sessionNotes || "Default Session";
-
+  
     return {
       title: event.summary,
       description: event.description,
-      start: event.start.dateTime,
-      end: event.end.dateTime,
+      start: startDateTime.toISOString(), // Format date to ISO string
+      end: endDateTime.toISOString(), // Format date to ISO string
       extendedProps: {
         _id: event.id,
         summary: event.summary,
-        attendees: event.attendees,
-        sessionNotes: event.description,
-        session: session, // Adjust as needed
+        attendees: event.attendees, // Join attendees as a comma-separated string
+        sessionNotes: event.sessionNotes,
         duration: duration,
       },
-    };
+    }
   });
 
   const [tooltipContent, setTooltipContent] = useState("");
@@ -192,11 +189,17 @@ const CalendarView = () => {
       sessionNotes,
     } = formData;
   
+
+  
   
     const eventObject = {
       summary,
       description,
-      attendees: attendees.split(","), // Convert comma-separated string to an array
+      attendees: attendees.split(",").map(email => ({
+        email: email.trim(),
+        responseStatus: 'accepted', // Set default value
+        self: true // Set default value
+      })), // Convert comma-separated string to an array
       date,
       start: { dateTime: `${date}T${start}`, timeZone: "Asia/Kolkata" }, // Combine date and time for start
       end: { dateTime: `${date}T${end}`, timeZone: "Asia/Kolkata" }, // Combine date and time for end
@@ -274,18 +277,11 @@ const CalendarView = () => {
   const [selectedEventId, setSelectedEventId] = useState("");
   const [createEvent, setCreateEventId] = useState(true);
   const splitDateTime = (dateTimeString) => {
-    // Create a Date object from the string
     const dateObj = new Date(dateTimeString);
-
-    // Extract the date part
     const date = dateObj.toISOString().split("T")[0]; // yyyy-mm-dd format
-
-    // Extract the time part (hh:mm:ss format)
-    const time = dateObj.toTimeString().split(" ")[0];
-
+    const time = dateObj.toTimeString().split(" ")[0]; // hh:mm:ss format
     return { date, time };
   };
-
   // Function to handle editing an event
   const handleEventClick = (info) => {
     setIsModalOpen(true);
@@ -305,8 +301,8 @@ const CalendarView = () => {
 
       // Join attendees if it's an array of strings
       const attendeesString = Array.isArray(eventOne.attendees)
-        ? eventOne.attendees.join(",")
-        : "";
+      ? eventOne.attendees.map(att => att.email).join(",")
+      : "";
 
       setFormData({
         summary: eventOne.summary,
@@ -358,9 +354,15 @@ const CalendarView = () => {
     }
   };
 
+  const handleLogout = async () => {
+    dispatch(logoutUser());
+    nav('/')
+  };
+
   return (
     <Box p={4} width="100%">
-      <Heading mb={4}>My Calendar</Heading>
+       <Navbar user={user} onLogout={handleLogout} />
+      <br/>
       <Button
         onClick={() => {
           setSelectedEventId("");
@@ -381,11 +383,7 @@ const CalendarView = () => {
       >
         Create Event
       </Button>{" "}
-      {/* <Calendar
-        onClickDay={(date) => alert(`Events on ${date.toDateString()}: ${events.filter(event => new Date(event.date).toDateString() === date.toDateString()).map(event => event.title).join(', ')}`)}
-      /> */}
-      {/* <GoogleCalendar events={formattedEvents}
-  apiKey={API_KEY} calendars={calendars} showWeekends={true} /> */}
+
       <FullCalendar
         plugins={[dayGridPlugin]}
         initialView="dayGridMonth"
@@ -396,8 +394,6 @@ const CalendarView = () => {
         eventContent={eventRender}
         // eventMouseEnter={handleEventMouseEnter}
         // eventMouseLeave={handleEventMouseLeave}
-        // Fix for modal not showing in fullscreen:
-        //  height="calc(100vh - 10px)" // Adjust height as needed (subtract header/footer height)
       />
       {tooltipContent && (
         <div
